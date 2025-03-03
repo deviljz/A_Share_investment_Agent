@@ -341,11 +341,19 @@ class Backtester:
             else:
                 daily_return = 0
 
+            #self.portfolio["cash"]
+            #self.portfolio["stock"]
+            #executed_quantity
+            #current_price
             # 记录组合价值和收益率
             self.portfolio_values.append({
                 "Date": current_date,
                 "Portfolio Value": total_value,
-                "Daily Return": daily_return
+                "Daily Return": daily_return,
+                "Cash":self.portfolio["cash"],
+                "Stock":self.portfolio["stock"],
+                "Quantity":executed_quantity,
+                "Current Price":current_price
             })
 
     def analyze_performance(self):
@@ -360,8 +368,8 @@ class Backtester:
         performance_df["Portfolio Value (K)"] = performance_df["Portfolio Value"] / 1000
 
         # 创建两个子图
-        fig, (ax1, ax2) = plt.subplots(
-            2, 1, figsize=(12, 10), height_ratios=[1, 1])
+        fig, (ax1, ax2, ax3) = plt.subplots(
+            3, 1, figsize=(12, 10), height_ratios=[1, 1, 1])
         fig.suptitle("回测结果分析", fontsize=12)
 
         # 绘制资金变化图
@@ -380,16 +388,46 @@ class Backtester:
                          ha='center',
                          fontsize=8)
 
-        # 绘制收益率变化图
+        # # 绘制收益率变化图
+        # line2 = ax2.plot(performance_df.index,
+        #                  performance_df["Cumulative Return"], label="累计收益率", color='green', marker='o')
+        # ax2.set_ylabel("累计收益率 (%)")
+        # ax2.set_title("累计收益率变化")
+        # ax2.grid(True)
+        #
+        # # 在数据点上添加标签
+        # for x, y in zip(performance_df.index, performance_df["Cumulative Return"]):
+        #     ax2.annotate(f'{y:.2f}%',
+        #                  (x, y),
+        #                  textcoords="offset points",
+        #                  xytext=(0, 10),
+        #                  ha='center',
+        #                  fontsize=8)
+
         line2 = ax2.plot(performance_df.index,
-                         performance_df["Cumulative Return"], label="累计收益率", color='green', marker='o')
-        ax2.set_ylabel("累计收益率 (%)")
-        ax2.set_title("累计收益率变化")
+                         performance_df["Current Price"], label="股价", color='green', marker='o')
+        ax2.set_ylabel("股价")
+        ax2.set_title("股价变化")
         ax2.grid(True)
 
         # 在数据点上添加标签
-        for x, y in zip(performance_df.index, performance_df["Cumulative Return"]):
-            ax2.annotate(f'{y:.2f}%',
+        for x, y in zip(performance_df.index, performance_df["Current Price"]):
+            ax2.annotate(f'{y:.2f}',
+                         (x, y),
+                         textcoords="offset points",
+                         xytext=(0, 10),
+                         ha='center',
+                         fontsize=8)
+
+        line3 = ax3.plot(performance_df.index,
+                         performance_df["Stock"], label="股价", color='green', marker='o')
+        ax3.set_ylabel("仓位")
+        ax3.set_title("仓位")
+        ax3.grid(True)
+
+        # 在数据点上添加标签
+        for x, y in zip(performance_df.index, performance_df["Stock"]):
+            ax3.annotate(f'{y:.2f}',
                          (x, y),
                          textcoords="offset points",
                          xytext=(0, 10),
