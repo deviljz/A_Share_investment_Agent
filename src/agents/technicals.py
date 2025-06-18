@@ -1,9 +1,11 @@
 import math
 from typing import Dict
+from src.utils.logging_config import setup_logger
 
 from langchain_core.messages import HumanMessage
 
 from src.agents.state import AgentState, show_agent_reasoning, show_workflow_status
+from src.utils.api_utils import agent_endpoint, log_llm_interaction
 
 import json
 import pandas as pd
@@ -11,8 +13,12 @@ import numpy as np
 
 from src.tools.api import prices_to_df
 
+# 初始化 logger
+logger = setup_logger('technical_analyst_agent')
+
 
 ##### Technical Analyst #####
+@agent_endpoint("technical_analyst", "技术分析师，提供基于价格走势、指标和技术模式的交易信号")
 def technical_analyst_agent(state: AgentState):
     """
     Sophisticated technical analysis system that combines multiple trading strategies:
@@ -22,6 +28,7 @@ def technical_analyst_agent(state: AgentState):
     4. Volatility Analysis
     5. Statistical Arbitrage Signals
     """
+    logger.info("\n--- DEBUG: technical_analyst_agent START ---")
     show_workflow_status("Technical Analyst")
     show_reasoning = state["metadata"]["show_reasoning"]
     data = state["data"]
@@ -213,11 +220,19 @@ def technical_analyst_agent(state: AgentState):
 
     if show_reasoning:
         show_agent_reasoning(analysis_report, "Technical Analyst")
+        # 保存推理信息到state的metadata供API使用
+        state["metadata"]["agent_reasoning"] = analysis_report
 
     show_workflow_status("Technical Analyst", "completed")
+
+    # 添加调试信息，打印将要返回的消息名称
+    # logger.info(
+    # f"--- DEBUG: technical_analyst_agent RETURN messages: {[msg.name for msg in [message]]} ---")
+
     return {
         "messages": [message],
         "data": data,
+        "metadata": state["metadata"],
     }
 
 

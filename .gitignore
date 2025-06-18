@@ -62,7 +62,7 @@ structure.drawio
 logs/
 
 # data
-src/data/stock_news/
+src/data/stock_news
 src/data/sentiment_cache.json
 
 # docs
@@ -73,3 +73,9 @@ cache/
 
 # temp
 temp/
+
+
+# macro analysis
+src/data/macro_analysis_cache.json
+
+test/
